@@ -1,4 +1,7 @@
+from flask import Flask, render_template, request, jsonify
 import re
+
+app = Flask(__name__)
 
 COMMON_PASSWORDS = [
     "password", "123456", "123456789",
@@ -45,20 +48,17 @@ def evaluate_password(password):
 
     return score, feedback
 
+@app.route("/")
+def home():
+    return render_template("index.html")
 
-def main():
-    while True:
-        pwd = input("Enter a password (or 'quit' to exit): ").strip()
-        if pwd.lower() in ("quit", "exit"):
-            break
-
-        score, feedback = evaluate_password(pwd)
-        print(f"\nStrength: {score}/5")
-        if feedback:
-            print("Feedback:")
-            for line in feedback:
-                print(" -", line)
-        print()
+@app.route("/check_password", methods=["POST"])
+def check_password():
+    data = request.get_json()
+    password = data.get("password", "")
+    score, feedback = evaluate_password(password)
+    return jsonify(score=score, feedback=feedback)
 
 if __name__ == "__main__":
-    main()
+    # bind explicitly to localhost
+    app.run(host="127.0.0.1", port=5000, debug=True)
