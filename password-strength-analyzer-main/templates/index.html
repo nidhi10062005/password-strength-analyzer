@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Password Strength Analyzer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-900 text-white flex items-center justify-center h-screen">
+
+  <div class="bg-gray-800 p-8 rounded-2xl shadow-lg w-96 transform hover:scale-105 transition duration-300">
+    
+    <!-- Title -->
+    <h2 class="text-2xl font-bold mb-4 text-center bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text">
+      🔐 Password Analyzer
+    </h2>
+
+    <!-- Input -->
+    <input id="password" type="password"
+      placeholder="Enter your password"
+      class="w-full p-3 rounded-lg bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2">
+
+    <!-- Show/Hide -->
+    <button onclick="togglePassword()" class="text-sm text-blue-400 mb-3">
+      Show / Hide Password
+    </button>
+
+    <!-- Strength Bar -->
+    <div class="w-full bg-gray-600 rounded-full h-3 mb-2">
+      <div id="strengthBar" class="h-3 rounded-full transition-all duration-300"></div>
+    </div>
+
+    <!-- Strength Text -->
+    <p id="strengthText" class="mb-3 text-sm"></p>
+
+    <!-- Suggestions -->
+    <ul id="suggestions" class="text-sm text-gray-300 space-y-1 mb-4"></ul>
+
+    <!-- Generate Button -->
+    <button onclick="generatePassword()" 
+      class="w-full bg-blue-500 hover:bg-blue-600 p-2 rounded-lg">
+      Generate Strong Password
+    </button>
+
+  </div>
+
+<script>
+const passwordInput = document.getElementById("password");
+const strengthBar = document.getElementById("strengthBar");
+const strengthText = document.getElementById("strengthText");
+const suggestions = document.getElementById("suggestions");
+
+passwordInput.addEventListener("input", () => {
+  const password = passwordInput.value;
+
+  let strength = 0;
+  let feedback = [];
+
+  if (password.length >= 8) strength++;
+  else feedback.push("Use at least 8 characters");
+
+  if (/[A-Z]/.test(password)) strength++;
+  else feedback.push("Add uppercase letters");
+
+  if (/[0-9]/.test(password)) strength++;
+  else feedback.push("Include numbers");
+
+  if (/[^A-Za-z0-9]/.test(password)) strength++;
+  else feedback.push("Use special characters");
+
+  updateUI(strength, feedback, password.length);
+});
+
+function updateUI(strength, feedback, length) {
+  const colors = ["bg-red-500", "bg-yellow-500", "bg-blue-500", "bg-green-500"];
+  const texts = ["Weak", "Fair", "Good", "Strong"];
+
+  if (length === 0) {
+    strengthBar.style.width = "0%";
+    strengthBar.className = "h-3 rounded-full bg-gray-500";
+    strengthText.textContent = "Enter a password";
+    suggestions.innerHTML = "";
+    return;
+  }
+
+  strengthBar.className = "h-3 rounded-full " + colors[strength - 1];
+  strengthBar.style.width = (strength * 25) + "%";
+
+  strengthText.textContent = texts[strength - 1];
+
+  suggestions.innerHTML = feedback.map(item => `<li>• ${item}</li>`).join("");
+}
+
+function togglePassword() {
+  passwordInput.type = passwordInput.type === "password" ? "text" : "password";
+}
+
+function generatePassword() {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%";
+  let pass = "";
+  for (let i = 0; i < 12; i++) {
+    pass += chars[Math.floor(Math.random() * chars.length)];
+  }
+  passwordInput.value = pass;
+  passwordInput.dispatchEvent(new Event("input"));
+}
+</script>
+
+</body>
+</html>
